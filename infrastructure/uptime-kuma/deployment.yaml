@@ -78,15 +78,19 @@ metadata:
   name: uptime-kuma
   namespace: uptime-kuma
   annotations:
-    cert-manager.io/issuer: uptime-kuma-selfsigned
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - uptime.homelab.local
+        - uptime.lab.samuelgesang.de
       secretName: uptime-kuma-tls
   rules:
-    - host: uptime.homelab.local
+    - host: uptime.lab.samuelgesang.de
       http:
         paths:
           - path: /

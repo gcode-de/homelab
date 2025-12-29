@@ -195,10 +195,18 @@ kind: Ingress
 metadata:
   name: netbox
   namespace: netbox
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - netbox.lab.samuelgesang.de
+      secretName: netbox-tls
   rules:
-    - host: netbox.homelab.local
+    - host: netbox.lab.samuelgesang.de
       http:
         paths:
           - path: /

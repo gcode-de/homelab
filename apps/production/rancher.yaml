@@ -12,12 +12,19 @@ spec:
     helm:
       skipCrds: false
       values: |
-        hostname: rancher.homelab.local
+        hostname: rancher.lab.samuelgesang.de
         ingress:
           enabled: true
           ingressClassName: nginx
           tls:
-            source: rancher
+            source: letsEncrypt
+          extraAnnotations:
+            nginx.ingress.kubernetes.io/ssl-redirect: "false"
+            nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+        letsEncrypt:
+          email: sgesang@mailo.com
+          ingress:
+            class: nginx
       valuesFrom:
         - secretRef:
             name: rancher-values
@@ -37,3 +44,8 @@ spec:
         duration: 5s
         factor: 2
         maxDuration: 3m
+  ignoreDifferences:
+    - group: networking.k8s.io
+      kind: Ingress
+      jsonPointers:
+        - /spec/tls
