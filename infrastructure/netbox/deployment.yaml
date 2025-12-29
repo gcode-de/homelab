@@ -1,0 +1,210 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: netbox
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: netbox-config
+  namespace: netbox
+data:
+  NETBOX_BASE_PATH: "/"
+  DB_HOST: "netbox-db"
+  DB_NAME: "netbox"
+  DB_USER: "netbox"
+  DB_PORT: "5432"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: netbox-db
+  namespace: netbox
+spec:
+  serviceName: netbox-db
+  replicas: 1
+  podManagementPolicy: OrderedReady
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: netbox-db
+  template:
+    metadata:
+      labels:
+        app: netbox-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: netbox
+            - name: POSTGRES_USER
+              value: netbox
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: netbox-db-credentials
+                  key: password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: longhorn
+        volumeMode: Filesystem
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: netbox-db
+  namespace: netbox
+spec:
+  clusterIP: None
+  selector:
+    app: netbox-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: netbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: netbox
+spec:
+  selector:
+    app: redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netbox
+  namespace: netbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: netbox
+  template:
+    metadata:
+      labels:
+        app: netbox
+    spec:
+      initContainers:
+        - name: db-migrations
+          image: netboxcommunity/netbox:v3.7.8
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: netbox-db-credentials
+                  key: password
+          envFrom:
+            - configMapRef:
+                name: netbox-config
+            - secretRef:
+                name: netbox-secrets
+          command:
+            - /opt/netbox/venv/bin/python
+            - /opt/netbox/netbox/manage.py
+            - migrate
+      containers:
+        - name: netbox
+          image: netboxcommunity/netbox:v3.7.8
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: netbox-db-credentials
+                  key: password
+          envFrom:
+            - configMapRef:
+                name: netbox-config
+            - secretRef:
+                name: netbox-secrets
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: netbox
+  namespace: netbox
+spec:
+  selector:
+    app: netbox
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: netbox
+  namespace: netbox
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: netbox.homelab.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: netbox
+                port:
+                  number: 80

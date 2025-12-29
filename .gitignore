@@ -1,0 +1,11 @@
+# Ignore local, unsealed secrets and env files
+**/*.unsealed.yaml
+**/*.env
+# Ignore local temp outputs
+/tmp/
+**/tmp/
+# Node, Python, editor junk (generic)
+node_modules/
+.DS_Store
+.envrc
+*.swp

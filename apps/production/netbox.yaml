@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: netbox
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/gcode-de/homelab.git
+    targetRevision: main
+    path: infrastructure/netbox
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: netbox
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 10s
+        maxDuration: 5m
+  ignoreDifferences:
+    - group: apps
+      kind: StatefulSet
+      name: netbox-db
+      namespace: netbox
+      jsonPointers:
+        - /metadata/annotations/argocd.argoproj.io~1tracking-id
+        - /status

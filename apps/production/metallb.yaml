@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: metallb
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://metallb.github.io/metallb
+    targetRevision: 0.14.9
+    chart: metallb
+    helm:
+      valuesObject:
+        addressPools:
+          - name: homelab-pool
+            protocol: layer2
+            addresses:
+              - 192.168.68.241-192.168.68.250
+        l2Advertisements:
+          - name: homelab-l2
+            ipAddressPools:
+              - homelab-pool
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: metallb-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  ignoreDifferences:
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      jsonPointers:
+        - /spec/conversion/webhook/clientConfig/caBundle
+    - group: metallb.io
+      kind: BGPPeer
+      jsonPointers:
+        - /spec/conversion/webhook/clientConfig/caBundle
+        - /status
+    - group: metallb.io
+      kind: IPAddressPool
+      jsonPointers:
+        - /spec/conversion/webhook/clientConfig/caBundle
+        - /status
+    - group: metallb.io
+      kind: L2Advertisement
+      jsonPointers:
+        - /spec/conversion/webhook/clientConfig/caBundle
+        - /status
