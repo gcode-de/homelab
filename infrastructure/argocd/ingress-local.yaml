@@ -4,13 +4,17 @@ metadata:
   name: argocd-server-local
   namespace: argocd
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
     nginx.ingress.kubernetes.io/proxy-cookie-path: "/ /"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - argocd.homelab.local
+      secretName: argocd-local-tls
   rules:
     - host: argocd.homelab.local
       http:
