@@ -1,0 +1,77 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calibre-web
+  namespace: calibre
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: calibre-web
+  template:
+    metadata:
+      labels:
+        app: calibre-web
+    spec:
+      containers:
+        - name: calibre-web
+          image: linuxserver/calibre-web:latest
+          env:
+            - name: PUID
+              value: "1028"
+            - name: PGID
+              value: "100"
+            - name: TZ
+              value: Europe/Berlin
+            - name: DOCKER_MODS
+              value: linuxserver/mods:universal-package-install
+          ports:
+            - containerPort: 8083
+              name: http
+          volumeMounts:
+            - name: library
+              mountPath: /books
+            - name: config
+              mountPath: /config
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8083
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8083
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+      volumes:
+        - name: library
+          persistentVolumeClaim:
+            claimName: calibre-nfs-library
+        - name: config
+          persistentVolumeClaim:
+            claimName: calibre-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: calibre-web
+  namespace: calibre
+spec:
+  selector:
+    app: calibre-web
+  ports:
+    - port: 80
+      targetPort: 8083
+      name: http
