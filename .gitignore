@@ -1,6 +1,10 @@
 # Ignore local, unsealed secrets and env files
 **/*.unsealed.yaml
 **/*.env
+
+# Optional: Ignore NFS config if you want to keep IPs private
+# infrastructure/paperless-ngx/nfs-config.yaml
+
 # Ignore local temp outputs
 /tmp/
 **/tmp/

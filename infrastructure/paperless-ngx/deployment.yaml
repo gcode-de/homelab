@@ -1,0 +1,207 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless-ngx
+  namespace: paperless-ngx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paperless-ngx
+  template:
+    metadata:
+      labels:
+        app: paperless-ngx
+    spec:
+      initContainers:
+        - name: init-nfs-permissions
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              chmod -R 755 /usr/src/paperless/consume 2>/dev/null || true
+              chmod -R 755 /usr/src/paperless/export 2>/dev/null || true
+          volumeMounts:
+            - name: consume
+              mountPath: /usr/src/paperless/consume
+            - name: export
+              mountPath: /usr/src/paperless/export
+      containers:
+        - name: paperless
+          image: ghcr.io/paperless-ngx/paperless-ngx:latest
+          env:
+            # Database
+            - name: PAPERLESS_DBHOST
+              value: paperless-postgres
+            - name: PAPERLESS_DBNAME
+              value: paperless
+            - name: PAPERLESS_DBUSER
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-secrets
+                  key: postgres-user
+            - name: PAPERLESS_DBPASS
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-secrets
+                  key: postgres-password
+            # Redis
+            - name: PAPERLESS_REDIS
+              value: redis://paperless-redis:6379
+            # Security
+            - name: PAPERLESS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-secrets
+                  key: secret-key
+            - name: PAPERLESS_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-secrets
+                  key: admin-user
+            - name: PAPERLESS_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: paperless-secrets
+                  key: admin-password
+            # URLs
+            - name: PAPERLESS_URL
+              value: https://paperless.lab.samuelgesang.de
+            - name: PAPERLESS_ALLOWED_HOSTS
+              value: "paperless.lab.samuelgesang.de,paperless.homelab.local,localhost,127.0.0.1"
+            - name: PAPERLESS_TRUSTED_PROXIES
+              value: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+            - name: PAPERLESS_CSRF_TRUSTED_ORIGINS
+              value: "https://paperless.lab.samuelgesang.de,https://paperless.homelab.local"
+            - name: PAPERLESS_FORCE_SCRIPT_NAME
+              value: ""
+            - name: PAPERLESS_STATIC_URL
+              value: /static/
+            # OCR
+            - name: PAPERLESS_OCR_LANGUAGE
+              value: deu+eng
+            - name: PAPERLESS_OCR_USER_ARGS
+              value: '{"continue_on_soft_render_error": true}'
+            # Time & Locale
+            - name: PAPERLESS_TIME_ZONE
+              value: Europe/Berlin
+            - name: PAPERLESS_CONSUMER_POLLING
+              value: "60"
+            # Consumption
+            - name: PAPERLESS_CONSUMER_RECURSIVE
+              value: "true"
+            - name: PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS
+              value: "true"
+            - name: PAPERLESS_FILENAME_FORMAT
+              value: "{{ created_year }}/{{ correspondent }}/{{ title }}"
+            # Auto-Export
+            - name: PAPERLESS_POST_CONSUME_SCRIPT
+              value: "/usr/src/paperless/scripts/auto-export.py"
+            # Tika für bessere OCR
+            - name: PAPERLESS_TIKA_ENABLED
+              value: "true"
+            - name: PAPERLESS_TIKA_ENDPOINT
+              value: http://localhost:9998
+            - name: PAPERLESS_TIKA_GOTENBERG_ENDPOINT
+              value: http://localhost:3000
+          ports:
+            - containerPort: 8000
+              name: http
+          volumeMounts:
+            - name: data
+              mountPath: /usr/src/paperless/data
+            - name: media
+              mountPath: /usr/src/paperless/media
+            - name: consume
+              mountPath: /usr/src/paperless/consume
+            - name: export
+              mountPath: /usr/src/paperless/export
+            - name: export-scripts
+              mountPath: /usr/src/paperless/scripts
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/ | grep -E '^(200|302)$'"
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/ | grep -E '^(200|302)$'"
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+        # Tika für bessere OCR/PDF-Parsing
+        - name: tika
+          image: apache/tika:latest
+          ports:
+            - containerPort: 9998
+              name: tika
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+        # Gotenberg für PDF-Konvertierung
+        - name: gotenberg
+          image: gotenberg/gotenberg:latest
+          command:
+            - gotenberg
+            - --chromium-disable-javascript=true
+            - --chromium-allow-list=file:///tmp/.*
+          ports:
+            - containerPort: 3000
+              name: gotenberg
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: paperless-data
+        - name: media
+          persistentVolumeClaim:
+            claimName: paperless-media
+        - name: consume
+          persistentVolumeClaim:
+            claimName: paperless-nfs-consume
+        - name: export
+          persistentVolumeClaim:
+            claimName: paperless-nfs-export
+        - name: export-scripts
+          configMap:
+            name: paperless-export-scripts
+            defaultMode: 0755
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: paperless-ngx
+  namespace: paperless-ngx
+spec:
+  selector:
+    app: paperless-ngx
+  ports:
+    - port: 80
+      targetPort: 8000
+      name: http
