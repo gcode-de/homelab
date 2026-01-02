@@ -25,10 +25,6 @@ spec:
           email: sgesang@mailo.com
           ingress:
             class: nginx
-      valuesFrom:
-        - secretRef:
-            name: rancher-values
-            key: values.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: cattle-system
