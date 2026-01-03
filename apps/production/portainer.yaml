@@ -1,0 +1,148 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: portainer-ui
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: portainer-ui-data
+  namespace: portainer-ui
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: longhorn
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: portainer
+  namespace: portainer-ui
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: portainer
+rules:
+  - apiGroups:
+      - "*"
+    resources:
+      - "*"
+    verbs:
+      - "*"
+  - nonResourceURLs:
+      - "*"
+    verbs:
+      - "*"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: portainer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: portainer
+subjects:
+  - kind: ServiceAccount
+    name: portainer
+    namespace: portainer-ui
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: portainer
+  namespace: portainer-ui
+spec:
+  ports:
+    - name: http
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+    - name: https
+      port: 9443
+      targetPort: 9443
+      protocol: TCP
+    - name: edge
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+  selector:
+    app: portainer
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portainer
+  namespace: portainer-ui
+  labels:
+    app: portainer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: portainer
+  template:
+    metadata:
+      labels:
+        app: portainer
+    spec:
+      serviceAccountName: portainer
+      containers:
+        - name: portainer
+          image: portainer/portainer-ce:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9000
+              protocol: TCP
+            - name: https
+              containerPort: 9443
+              protocol: TCP
+            - name: edge
+              containerPort: 8000
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: portainer-ui-data
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: portainer
+  namespace: portainer-ui
+  annotations:
+    cert-manager.io/cluster-issuer: homelab-selfsigned
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - portainer.homelab.local
+      secretName: portainer-tls-ingress
+  rules:
+    - host: portainer.homelab.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: portainer
+                port:
+                  number: 9000

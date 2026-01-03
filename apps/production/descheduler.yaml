@@ -18,7 +18,7 @@ spec:
       values: |
         # Run every 5 minutes
         schedule: "*/5 * * * *"
-        
+
         # Descheduler strategies
         deschedulerPolicy:
           strategies:
@@ -56,7 +56,7 @@ spec:
               enabled: true
               params:
                 includeSoftConstraints: true
-        
+
         # Resource limits
         resources:
           requests:
@@ -69,7 +69,7 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: kube-system
-  
+
   syncPolicy:
     automated:
       prune: true

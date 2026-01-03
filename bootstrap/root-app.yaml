@@ -18,3 +18,9 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+  ignoreDifferences:
+    - kind: Namespace
+      name: portainer
+      jsonPointers:
+        - /metadata/finalizers
+        - /metadata/deletionTimestamp
