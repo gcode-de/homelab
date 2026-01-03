@@ -1,0 +1,93 @@
+---
+# Proxmox VE Exporter - Deployment
+# Collects metrics from Proxmox hosts via API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pve-exporter
+  namespace: monitoring
+  labels:
+    app: pve-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pve-exporter
+  template:
+    metadata:
+      labels:
+        app: pve-exporter
+    spec:
+      containers:
+        - name: pve-exporter
+          image: prompve/prometheus-pve-exporter:3.4.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9221
+              name: metrics
+          env:
+            - name: PVE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: proxmox-credentials
+                  key: user
+            - name: PVE_TOKEN_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: proxmox-credentials
+                  key: token_name
+            - name: PVE_TOKEN_VALUE
+              valueFrom:
+                secretKeyRef:
+                  name: proxmox-credentials
+                  key: token_value
+            - name: PVE_VERIFY_SSL
+              value: "false"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/pve_exporter/pve.yml
+              subPath: pve.yml
+      volumes:
+        - name: config
+          configMap:
+            name: pve-exporter-config
+---
+# PVE Exporter Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: pve-exporter
+  namespace: monitoring
+  labels:
+    app: pve-exporter
+spec:
+  type: ClusterIP
+  selector:
+    app: pve-exporter
+  ports:
+    - port: 9221
+      targetPort: metrics
+      name: metrics
+---
+# PVE Exporter ConfigMap
+# Define your Proxmox hosts here
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pve-exporter-config
+  namespace: monitoring
+data:
+  pve.yml: |
+    default:
+      # Use environment variables for credentials
+      user: !ENV PVE_USER
+      token_name: !ENV PVE_TOKEN_NAME
+      token_value: !ENV PVE_TOKEN_VALUE
+      verify_ssl: false
