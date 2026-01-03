@@ -1,0 +1,334 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-proxmox
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: "Homelab"
+data:
+  proxmox-cluster.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {
+          "gridPos": { "h": 2, "w": 24, "x": 0, "y": 0 },
+          "id": 100,
+          "options": { "content": "# Proxmox VE Cluster - Homelab\n6 Nodes: PVE1, PVE2, PVE3, PVE4, PVE6, PVE7", "mode": "markdown" },
+          "title": "",
+          "transparent": true,
+          "type": "text"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "mappings": [{ "options": { "0": { "color": "red", "text": "Offline" }, "1": { "color": "green", "text": "Online" } }, "type": "value" }],
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+            }
+          },
+          "gridPos": { "h": 3, "w": 4, "x": 0, "y": 2 },
+          "id": 1,
+          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+          "title": "PVE1",
+          "type": "stat",
+          "targets": [{ "expr": "max(pve_up{id=\"node/pve1\"})", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "mappings": [{ "options": { "0": { "color": "red", "text": "Offline" }, "1": { "color": "green", "text": "Online" } }, "type": "value" }],
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+            }
+          },
+          "gridPos": { "h": 3, "w": 4, "x": 4, "y": 2 },
+          "id": 2,
+          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+          "title": "PVE2",
+          "type": "stat",
+          "targets": [{ "expr": "max(pve_up{id=\"node/pve2\"})", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "mappings": [{ "options": { "0": { "color": "red", "text": "Offline" }, "1": { "color": "green", "text": "Online" } }, "type": "value" }],
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+            }
+          },
+          "gridPos": { "h": 3, "w": 4, "x": 8, "y": 2 },
+          "id": 3,
+          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+          "title": "PVE3",
+          "type": "stat",
+          "targets": [{ "expr": "max(pve_up{id=\"node/pve3\"})", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "mappings": [{ "options": { "0": { "color": "red", "text": "Offline" }, "1": { "color": "green", "text": "Online" } }, "type": "value" }],
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+            }
+          },
+          "gridPos": { "h": 3, "w": 4, "x": 12, "y": 2 },
+          "id": 4,
+          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+          "title": "PVE4",
+          "type": "stat",
+          "targets": [{ "expr": "max(pve_up{id=\"node/pve4\"})", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "mappings": [{ "options": { "0": { "color": "red", "text": "Offline" }, "1": { "color": "green", "text": "Online" } }, "type": "value" }],
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+            }
+          },
+          "gridPos": { "h": 3, "w": 4, "x": 16, "y": 2 },
+          "id": 5,
+          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+          "title": "PVE6",
+          "type": "stat",
+          "targets": [{ "expr": "max(pve_up{id=\"node/pve6\"})", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "mappings": [{ "options": { "0": { "color": "red", "text": "Offline" }, "1": { "color": "green", "text": "Online" } }, "type": "value" }],
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+            }
+          },
+          "gridPos": { "h": 3, "w": 4, "x": 20, "y": 2 },
+          "id": 6,
+          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+          "title": "PVE7",
+          "type": "stat",
+          "targets": [{ "expr": "max(pve_up{id=\"node/pve7\"})", "refId": "A" }]
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+          "id": 101,
+          "title": "Node Resources - Current Status",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "description": "Current resource usage per Proxmox node",
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "thresholds" },
+              "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false },
+              "mappings": [],
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+            },
+            "overrides": [
+              { "matcher": { "id": "byName", "options": "Node" }, "properties": [{ "id": "custom.width", "value": 100 }] },
+              { "matcher": { "id": "byName", "options": "CPU %" }, "properties": [{ "id": "unit", "value": "percent" }, { "id": "decimals", "value": 1 }, { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } }, { "id": "max", "value": 100 }, { "id": "min", "value": 0 }, { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] } }, { "id": "custom.width", "value": 180 }] },
+              { "matcher": { "id": "byName", "options": "RAM Used" }, "properties": [{ "id": "unit", "value": "decbytes" }, { "id": "decimals", "value": 1 }, { "id": "custom.width", "value": 90 }] },
+              { "matcher": { "id": "byName", "options": "RAM Total" }, "properties": [{ "id": "unit", "value": "decbytes" }, { "id": "decimals", "value": 1 }, { "id": "custom.width", "value": 90 }] },
+              { "matcher": { "id": "byName", "options": "RAM %" }, "properties": [{ "id": "unit", "value": "percent" }, { "id": "decimals", "value": 1 }, { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } }, { "id": "max", "value": 100 }, { "id": "min", "value": 0 }, { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] } }, { "id": "custom.width", "value": 180 }] },
+              { "matcher": { "id": "byName", "options": "Disk Used" }, "properties": [{ "id": "unit", "value": "decbytes" }, { "id": "decimals", "value": 1 }, { "id": "custom.width", "value": 90 }] },
+              { "matcher": { "id": "byName", "options": "Disk Total" }, "properties": [{ "id": "unit", "value": "decbytes" }, { "id": "decimals", "value": 1 }, { "id": "custom.width", "value": 90 }] },
+              { "matcher": { "id": "byName", "options": "Disk %" }, "properties": [{ "id": "unit", "value": "percent" }, { "id": "decimals", "value": 1 }, { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } }, { "id": "max", "value": 100 }, { "id": "min", "value": 0 }, { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] } }, { "id": "custom.width", "value": 180 }] }
+            ]
+          },
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 6 },
+          "id": 102,
+          "options": { "footer": { "enablePagination": false, "fields": "", "reducer": ["sum"], "show": false }, "showHeader": true, "sortBy": [{ "desc": false, "displayName": "Node" }] },
+          "title": "Node Resources Overview",
+          "type": "table",
+          "targets": [
+            { "expr": "max by(id) (pve_cpu_usage_ratio{id=~\"node/.*\"}) * 100", "format": "table", "instant": true, "refId": "cpu" },
+            { "expr": "max by(id) (pve_memory_usage_bytes{id=~\"node/.*\"})", "format": "table", "instant": true, "refId": "ram_used" },
+            { "expr": "max by(id) (pve_memory_size_bytes{id=~\"node/.*\"})", "format": "table", "instant": true, "refId": "ram_total" },
+            { "expr": "(max by(id) (pve_memory_usage_bytes{id=~\"node/.*\"}) / max by(id) (pve_memory_size_bytes{id=~\"node/.*\"})) * 100", "format": "table", "instant": true, "refId": "ram_pct" },
+            { "expr": "max by(id) (pve_disk_usage_bytes{id=~\"storage/.*/local\"})", "format": "table", "instant": true, "refId": "disk_used" },
+            { "expr": "max by(id) (pve_disk_size_bytes{id=~\"storage/.*/local\"})", "format": "table", "instant": true, "refId": "disk_total" },
+            { "expr": "(max by(id) (pve_disk_usage_bytes{id=~\"storage/.*/local\"}) / max by(id) (pve_disk_size_bytes{id=~\"storage/.*/local\"})) * 100", "format": "table", "instant": true, "refId": "disk_pct" }
+          ],
+          "transformations": [
+            { "id": "seriesToColumns", "options": { "byField": "id" } },
+            { "id": "organize", "options": { "excludeByName": { "Time": true, "Time 1": true, "Time 2": true, "Time 3": true, "Time 4": true, "Time 5": true, "Time 6": true, "Time 7": true }, "indexByName": {}, "renameByName": { "Value #cpu": "CPU %", "Value #disk_pct": "Disk %", "Value #disk_total": "Disk Total", "Value #disk_used": "Disk Used", "Value #ram_pct": "RAM %", "Value #ram_total": "RAM Total", "Value #ram_used": "RAM Used", "id": "Node" } } },
+            { "id": "filterByValue", "options": { "filters": [{ "config": { "id": "isNotNull", "options": {} }, "fieldName": "RAM Total" }], "match": "all", "type": "include" } }
+          ]
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+          "id": 103,
+          "title": "Resource Usage Over Time",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": { "axisCenteredZero": false, "axisColorMode": "text", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "line", "fillOpacity": 20, "gradientMode": "none", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "line" } },
+              "mappings": [],
+              "max": 100,
+              "min": 0,
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] },
+              "unit": "percent"
+            }
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 0, "y": 15 },
+          "id": 10,
+          "options": { "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+          "title": "CPU Usage %",
+          "type": "timeseries",
+          "targets": [{ "expr": "max by(id) (pve_cpu_usage_ratio{id=~\"node/.*\"}) * 100", "legendFormat": "{{id}}", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": { "axisCenteredZero": false, "axisColorMode": "text", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "line", "fillOpacity": 20, "gradientMode": "none", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "line" } },
+              "mappings": [],
+              "max": 100,
+              "min": 0,
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] },
+              "unit": "percent"
+            }
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 8, "y": 15 },
+          "id": 11,
+          "options": { "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+          "title": "RAM Usage %",
+          "type": "timeseries",
+          "targets": [{ "expr": "(max by(id) (pve_memory_usage_bytes{id=~\"node/.*\"}) / max by(id) (pve_memory_size_bytes{id=~\"node/.*\"})) * 100", "legendFormat": "{{id}}", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": {
+              "color": { "mode": "palette-classic" },
+              "custom": { "axisCenteredZero": false, "axisColorMode": "text", "axisPlacement": "auto", "barAlignment": 0, "drawStyle": "line", "fillOpacity": 20, "gradientMode": "none", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 5, "scaleDistribution": { "type": "linear" }, "showPoints": "never", "spanNulls": false, "stacking": { "group": "A", "mode": "none" }, "thresholdsStyle": { "mode": "line" } },
+              "mappings": [],
+              "max": 100,
+              "min": 0,
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] },
+              "unit": "percent"
+            }
+          },
+          "gridPos": { "h": 8, "w": 8, "x": 16, "y": 15 },
+          "id": 31,
+          "options": { "legend": { "calcs": ["mean", "lastNotNull"], "displayMode": "table", "placement": "bottom" }, "tooltip": { "mode": "multi", "sort": "desc" } },
+          "title": "Disk Usage %",
+          "type": "timeseries",
+          "targets": [{ "expr": "(max by(id) (pve_disk_usage_bytes{id=~\"storage/.*/local.*\"}) / max by(id) (pve_disk_size_bytes{id=~\"storage/.*/local.*\"})) * 100", "legendFormat": "{{id}}", "refId": "A" }]
+        },
+        {
+          "collapsed": false,
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+          "id": 104,
+          "title": "VMs & Containers",
+          "type": "row"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } } },
+          "gridPos": { "h": 3, "w": 6, "x": 0, "y": 24 },
+          "id": 20,
+          "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+          "title": "Total VMs",
+          "type": "stat",
+          "targets": [{ "expr": "count(max by(id) (pve_guest_info{id=~\"qemu/.*\"}))", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } } },
+          "gridPos": { "h": 3, "w": 6, "x": 6, "y": 24 },
+          "id": 21,
+          "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+          "title": "Running VMs",
+          "type": "stat",
+          "targets": [{ "expr": "count(max by(id) (pve_up{id=~\"qemu/.*\"}) == 1)", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } } },
+          "gridPos": { "h": 3, "w": 6, "x": 12, "y": 24 },
+          "id": 22,
+          "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+          "title": "Total LXC",
+          "type": "stat",
+          "targets": [{ "expr": "count(max by(id) (pve_guest_info{id=~\"lxc/.*\"}))", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } } },
+          "gridPos": { "h": 3, "w": 6, "x": 18, "y": 24 },
+          "id": 23,
+          "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+          "title": "Running LXC",
+          "type": "stat",
+          "targets": [{ "expr": "count(max by(id) (pve_up{id=~\"lxc/.*\"}) == 1)", "refId": "A" }]
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": {
+            "defaults": { "color": { "mode": "thresholds" }, "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } },
+            "overrides": [
+              { "matcher": { "id": "byName", "options": "Name" }, "properties": [{ "id": "custom.width", "value": 200 }] },
+              { "matcher": { "id": "byName", "options": "Status" }, "properties": [{ "id": "mappings", "value": [{ "options": { "0": { "color": "red", "text": "Stopped" }, "1": { "color": "green", "text": "Running" } }, "type": "value" }] }, { "id": "custom.cellOptions", "value": { "type": "color-background" } }, { "id": "custom.width", "value": 80 }] },
+              { "matcher": { "id": "byName", "options": "CPU %" }, "properties": [{ "id": "unit", "value": "percent" }, { "id": "decimals", "value": 1 }, { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } }, { "id": "max", "value": 100 }, { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] } }, { "id": "custom.width", "value": 150 }] },
+              { "matcher": { "id": "byName", "options": "Mem %" }, "properties": [{ "id": "unit", "value": "percent" }, { "id": "decimals", "value": 1 }, { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } }, { "id": "max", "value": 100 }, { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 70 }, { "color": "red", "value": 90 }] } }, { "id": "custom.width", "value": 150 }] },
+              { "matcher": { "id": "byName", "options": "Node" }, "properties": [{ "id": "custom.width", "value": 60 }] },
+              { "matcher": { "id": "byName", "options": "ID" }, "properties": [{ "id": "custom.width", "value": 80 }] },
+              { "matcher": { "id": "byName", "options": "Mem Used" }, "properties": [{ "id": "unit", "value": "decbytes" }, { "id": "decimals", "value": 1 }, { "id": "custom.width", "value": 90 }] },
+              { "matcher": { "id": "byName", "options": "Mem Max" }, "properties": [{ "id": "unit", "value": "decbytes" }, { "id": "decimals", "value": 1 }, { "id": "custom.width", "value": 90 }] }
+            ]
+          },
+          "gridPos": { "h": 12, "w": 24, "x": 0, "y": 27 },
+          "id": 40,
+          "options": { "footer": { "enablePagination": true, "fields": "", "reducer": ["sum"], "show": false }, "showHeader": true, "sortBy": [{ "desc": false, "displayName": "Name" }] },
+          "title": "VM & Container List",
+          "type": "table",
+          "targets": [
+            { "expr": "max by(id, name, node) (pve_guest_info)", "format": "table", "instant": true, "refId": "info" },
+            { "expr": "max by(id) (pve_up{id=~\"(qemu|lxc)/.*\"})", "format": "table", "instant": true, "refId": "status" },
+            { "expr": "max by(id) (pve_cpu_usage_ratio{id=~\"(qemu|lxc)/.*\"}) * 100", "format": "table", "instant": true, "refId": "cpu" },
+            { "expr": "max by(id) (pve_memory_usage_bytes{id=~\"(qemu|lxc)/.*\"})", "format": "table", "instant": true, "refId": "mem_used" },
+            { "expr": "max by(id) (pve_memory_size_bytes{id=~\"(qemu|lxc)/.*\"})", "format": "table", "instant": true, "refId": "mem_max" },
+            { "expr": "(max by(id) (pve_memory_usage_bytes{id=~\"(qemu|lxc)/.*\"}) / max by(id) (pve_memory_size_bytes{id=~\"(qemu|lxc)/.*\"})) * 100", "format": "table", "instant": true, "refId": "mem_pct" }
+          ],
+          "transformations": [
+            { "id": "seriesToColumns", "options": { "byField": "id" } },
+            { "id": "organize", "options": { "excludeByName": { "Time": true, "Time 1": true, "Time 2": true, "Time 3": true, "Time 4": true, "Time 5": true, "Time 6": true, "Value": true }, "indexByName": {}, "renameByName": { "Value #cpu": "CPU %", "Value #mem_max": "Mem Max", "Value #mem_pct": "Mem %", "Value #mem_used": "Mem Used", "Value #status": "Status", "id": "ID", "name": "Name", "node": "Node" } } }
+          ]
+        }
+      ],
+      "refresh": "30s",
+      "schemaVersion": 38,
+      "style": "dark",
+      "tags": ["homelab", "proxmox", "virtualization"],
+      "templating": { "list": [] },
+      "time": { "from": "now-1h", "to": "now" },
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "Proxmox VE Cluster",
+      "uid": "proxmox-cluster",
+      "version": 1,
+      "weekStart": ""
+    }

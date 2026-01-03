@@ -3,4 +3,5 @@ kind: Kustomization
 
 resources:
   - homelab-overview.yaml
+  - proxmox-cluster.yaml
   - loki-logs-explorer.yaml
