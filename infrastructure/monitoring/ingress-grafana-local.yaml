@@ -16,7 +16,7 @@ spec:
   tls:
     - hosts:
         - grafana.homelab.local
-      secretName: grafana-local-tls
+      secretName: homelab-local-tls
   rules:
     - host: grafana.homelab.local
       http:

@@ -14,7 +14,7 @@ spec:
   tls:
     - hosts:
         - calibre.homelab.local
-      secretName: calibre-local-tls
+      secretName: homelab-local-tls
   rules:
     - host: calibre.homelab.local
       http:

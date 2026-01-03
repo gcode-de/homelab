@@ -1,0 +1,78 @@
+---
+# Kubernetes Descheduler - Automatically rebalances pod distribution
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: descheduler
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://kubernetes-sigs.github.io/descheduler
+    chart: descheduler
+    targetRevision: 0.30.1
+    helm:
+      releaseName: descheduler
+      values: |
+        # Run every 5 minutes
+        schedule: "*/5 * * * *"
+        
+        # Descheduler strategies
+        deschedulerPolicy:
+          strategies:
+            # Rebalance nodes with uneven resource usage
+            LowNodeUtilization:
+              enabled: true
+              params:
+                nodeResourceUtilizationThresholds:
+                  thresholds:
+                    cpu: 20
+                    memory: 20
+                    pods: 20
+                  targetThresholds:
+                    cpu: 50
+                    memory: 50
+                    pods: 50
+            
+            # Remove pods from nodes where they shouldn't be
+            RemovePodsViolatingNodeAffinity:
+              enabled: true
+              params:
+                nodeAffinityType:
+                  - requiredDuringSchedulingIgnoredDuringExecution
+            
+            # Remove duplicate pods on same node
+            RemoveDuplicates:
+              enabled: true
+            
+            # Remove pods that have been running for too long on wrong nodes
+            RemovePodsViolatingInterPodAntiAffinity:
+              enabled: true
+            
+            # Remove pods violating topology spread constraints
+            RemovePodsViolatingTopologySpreadConstraint:
+              enabled: true
+              params:
+                includeSoftConstraints: true
+        
+        # Resource limits
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

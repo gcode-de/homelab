@@ -14,7 +14,7 @@ spec:
   tls:
     - hosts:
         - argocd.homelab.local
-      secretName: argocd-local-tls
+      secretName: homelab-local-tls
   rules:
     - host: argocd.homelab.local
       http:
