@@ -2,76 +2,77 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: calibre-web
-  namespace: calibre
+  name: kavita
+  namespace: kavita
+  labels:
+    app: kavita
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: calibre-web
+      app: kavita
+  strategy:
+    type: Recreate  # Required for RWO PVC
   template:
     metadata:
       labels:
-        app: calibre-web
+        app: kavita
     spec:
       containers:
-        - name: calibre-web
-          image: linuxserver/calibre-web:latest
+        - name: kavita
+          image: jvmilazz0/kavita:latest
+          ports:
+            - containerPort: 5000
+              name: http
           env:
-            - name: PUID
-              value: "1028"
-            - name: PGID
-              value: "100"
             - name: TZ
               value: Europe/Berlin
-            - name: DOCKER_MODS
-              value: linuxserver/mods:universal-package-install
-          ports:
-            - containerPort: 8083
-              name: http
           volumeMounts:
+            - name: config
+              mountPath: /kavita/config
             - name: library
               mountPath: /books
-            - name: config
-              mountPath: /config
+              readOnly: true  # Read-only access to library
           resources:
             requests:
               memory: "256Mi"
               cpu: "100m"
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: "1Gi"
+              cpu: "1000m"
           livenessProbe:
             httpGet:
-              path: /
-              port: 8083
+              path: /api/health
+              port: 5000
             initialDelaySeconds: 30
             periodSeconds: 30
             timeoutSeconds: 10
           readinessProbe:
             httpGet:
-              path: /
-              port: 8083
+              path: /api/health
+              port: 5000
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 5
       volumes:
-        - name: library
-          persistentVolumeClaim:
-            claimName: calibre-nfs-library
         - name: config
           persistentVolumeClaim:
-            claimName: calibre-data
+            claimName: kavita-config
+        - name: library
+          persistentVolumeClaim:
+            claimName: kavita-nfs-library
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: calibre-web
-  namespace: calibre
+  name: kavita
+  namespace: kavita
+  labels:
+    app: kavita
 spec:
   selector:
-    app: calibre-web
+    app: kavita
   ports:
     - port: 80
-      targetPort: 8083
+      targetPort: 5000
       name: http
