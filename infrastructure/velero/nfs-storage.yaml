@@ -1,0 +1,35 @@
+---
+# NFS PersistentVolume for Velero backups on Synology NAS
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: velero-backup-nfs
+  labels:
+    app: velero
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-velero
+  nfs:
+    server: 192.168.68.126
+    path: /volume2/Proxmox/k8s-backups
+  mountOptions:
+    - nfsvers=4
+    - nolock
+    - soft
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: velero-backup-pvc
+  namespace: velero
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: nfs-velero
+  resources:
+    requests:
+      storage: 100Gi

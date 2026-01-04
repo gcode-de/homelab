@@ -1,0 +1,158 @@
+---
+# First deploy MinIO and prerequisites
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: velero-prereqs
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/gcode-de/homelab.git
+    targetRevision: main
+    path: infrastructure/velero
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: velero
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+# Then deploy Velero via Helm
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: velero
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://vmware-tanzu.github.io/helm-charts
+    chart: velero
+    targetRevision: 7.2.1
+    helm:
+      valuesObject:
+        deployNodeAgent: true
+        
+        # Disable upgrade CRDs job (ArgoCD handles this with sync waves)
+        upgradeCRDs: false
+        cleanUpCRDs: false
+        
+        # Fix kubectl image version - use lachlanevenson which has version tags
+        kubectl:
+          image:
+            repository: lachlanevenson/k8s-kubectl
+            tag: "v1.29.0"
+        
+        configuration:
+          backupStorageLocation:
+            - name: default
+              provider: aws
+              bucket: velero
+              default: true
+              config:
+                region: minio
+                s3ForcePathStyle: "true"
+                s3Url: http://minio.velero.svc.cluster.local:9000
+                publicUrl: http://minio.velero.svc.cluster.local:9000
+          
+          defaultBackupTTL: 720h
+          uploaderType: kopia
+        
+        # Disable snapshotting entirely - use file-level backup only
+        snapshotsEnabled: false
+        
+        credentials:
+          useSecret: true
+          existingSecret: velero-credentials
+        
+        initContainers:
+          - name: velero-plugin-for-aws
+            image: velero/velero-plugin-for-aws:v1.10.0
+            volumeMounts:
+              - name: plugins
+                mountPath: /target
+        
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+        
+        nodeAgent:
+          podVolumePath: /var/lib/kubelet/pods
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+        
+        schedules:
+          daily-backup:
+            disabled: false
+            schedule: "0 2 * * *"
+            useOwnerReferencesInBackup: false
+            template:
+              ttl: 720h
+              includedNamespaces:
+                - "*"
+              excludedNamespaces:
+                - kube-system
+                - kube-public
+                - kube-node-lease
+                - velero
+              includeClusterResources: true
+              defaultVolumesToFsBackup: true
+              storageLocation: default
+          
+          weekly-full:
+            disabled: false
+            schedule: "0 3 * * 0"
+            useOwnerReferencesInBackup: false
+            template:
+              ttl: 2160h
+              includedNamespaces:
+                - "*"
+              excludedNamespaces:
+                - kube-system
+                - kube-public
+                - kube-node-lease
+                - velero
+              includeClusterResources: true
+              defaultVolumesToFsBackup: true
+              storageLocation: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: velero
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true      - SkipDryRunOnMissingResource=true
+      - RespectIgnoreDifferences=true
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  ignoreDifferences:
+    - group: batch
+      kind: Job
+      jsonPointers:
+        - /spec/selector
+        - /spec/template/metadata/labels
