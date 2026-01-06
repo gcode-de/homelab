@@ -9,30 +9,16 @@ metadata:
     app: minio-velero
 spec:
   capacity:
-    storage: 200Gi
+    storage: 500Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: nfs-minio
   nfs:
     server: 192.168.68.126
     path: /volume2/Proxmox/k8s-backups
   mountOptions:
     - nfsvers=4
     - nolock
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: minio-data
-  namespace: velero
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: nfs-minio
-  resources:
-    requests:
-      storage: 200Gi
 ---
 apiVersion: v1
 kind: Secret
@@ -51,6 +37,9 @@ metadata:
   namespace: velero
   labels:
     app: minio
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: minio=minio/minio:latest
+    argocd-image-updater.argoproj.io/minio.update-strategy: latest
 spec:
   replicas: 1
   selector:
@@ -135,7 +124,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: mc
-          image: minio/mc:RELEASE.2022-10-29T10-09-23Z
+          image: minio/mc:latest
           command:
             - /bin/sh
             - -c

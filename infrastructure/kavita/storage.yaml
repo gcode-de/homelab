@@ -1,0 +1,56 @@
+---
+# NFS PersistentVolume for eBook library on Synology NAS
+# Kavita reads directly from here - no copying!
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kavita-nfs-library
+  labels:
+    app: kavita
+    type: nfs-library
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadOnlyMany  # Read-only - Kavita doesn't need to write to library
+  nfs:
+    server: 192.168.68.126
+    path: /volume1/Privat/WISSEN
+  mountOptions:
+    - nfsvers=4
+    - hard
+    - intr
+    - rsize=65536
+    - wsize=65536
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kavita-nfs-library
+  namespace: kavita
+spec:
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 500Gi
+  selector:
+    matchLabels:
+      app: kavita
+      type: nfs-library
+  storageClassName: ""
+---
+# PVC for Kavita config/database (uses Longhorn)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kavita-config
+  namespace: kavita
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: longhorn

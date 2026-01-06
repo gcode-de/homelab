@@ -1,8 +1,7 @@
----
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: calibre
+  name: audiobookshelf
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -10,25 +9,14 @@ spec:
   project: default
   source:
     repoURL: https://github.com/gcode-de/homelab.git
-    targetRevision: main
-    path: infrastructure/calibre
+    targetRevision: HEAD
+    path: infrastructure/audiobookshelf
   destination:
     server: https://kubernetes.default.svc
-    namespace: calibre
+    namespace: audiobookshelf
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-    retry:
-      limit: 5
-      backoff:
-        duration: 5s
-        factor: 2
-        maxDuration: 3m
-  ignoreDifferences:
-    - group: apps
-      kind: Deployment
-      jqPathExpressions:
-        - .spec.template.spec.containers[].image
