@@ -67,7 +67,7 @@ spec:
           grafana.ini:
             auth.anonymous:
               enabled: true
-              org_name: Main Org.
+              org_id: 1
               org_role: Viewer
           # Additional data sources
           additionalDataSources:
