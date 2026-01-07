@@ -64,6 +64,11 @@ spec:
                 foldersFromFilesStructure: true
             datasources:
               enabled: true
+          grafana.ini:
+            auth.anonymous:
+              enabled: true
+              org_name: Main Org.
+              org_role: Viewer
           # Additional data sources
           additionalDataSources:
             - name: Loki
