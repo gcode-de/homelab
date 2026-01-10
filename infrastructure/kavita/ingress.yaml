@@ -5,18 +5,19 @@ metadata:
   name: kavita
   namespace: kavita
   annotations:
-    cert-manager.io/cluster-issuer: homelab-selfsigned
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - kavita.homelab.local
+        - kavita.samuelgesang.de
       secretName: kavita-tls
   rules:
-    - host: kavita.homelab.local
+    - host: kavita.samuelgesang.de
       http:
         paths:
           - path: /

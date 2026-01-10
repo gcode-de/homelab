@@ -1,29 +1,27 @@
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: argocd-server
-  namespace: argocd
+  name: netbox
+  namespace: netbox
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-cloudflare
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
-    nginx.ingress.kubernetes.io/proxy-cookie-path: "/ /"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - argocd.lab.samuelgesang.de
-      secretName: argocd-server-tls
+        - netbox.samuelgesang.de
+      secretName: netbox-tls
   rules:
-    - host: argocd.lab.samuelgesang.de
+    - host: netbox.samuelgesang.de
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: argocd-server
+                name: netbox
                 port:
                   number: 80

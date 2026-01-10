@@ -154,16 +154,17 @@ metadata:
   name: navidrome
   namespace: navidrome
   annotations:
-    cert-manager.io/cluster-issuer: homelab-selfsigned
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - navidrome.homelab.local
+        - music.samuelgesang.de
       secretName: navidrome-tls
   rules:
-    - host: navidrome.homelab.local
+    - host: music.samuelgesang.de
       http:
         paths:
           - path: /

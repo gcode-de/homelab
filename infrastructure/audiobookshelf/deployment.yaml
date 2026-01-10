@@ -148,16 +148,17 @@ metadata:
   name: audiobookshelf
   namespace: audiobookshelf
   annotations:
-    cert-manager.io/cluster-issuer: homelab-selfsigned
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - audiobookshelf.homelab.local
+        - audiobookshelf.samuelgesang.de
       secretName: audiobookshelf-tls
   rules:
-    - host: audiobookshelf.homelab.local
+    - host: audiobookshelf.samuelgesang.de
       http:
         paths:
           - path: /

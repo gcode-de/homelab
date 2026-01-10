@@ -128,15 +128,16 @@ metadata:
   name: portainer
   namespace: portainer-ui
   annotations:
-    cert-manager.io/cluster-issuer: homelab-selfsigned
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - portainer.homelab.local
+        - portainer.samuelgesang.de
       secretName: portainer-tls-ingress
   rules:
-    - host: portainer.homelab.local
+    - host: portainer.samuelgesang.de
       http:
         paths:
           - path: /
