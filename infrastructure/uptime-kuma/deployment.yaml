@@ -87,10 +87,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - uptime.lab.samuelgesang.de
+        - uptime.samuelgesang.de
       secretName: uptime-kuma-tls
   rules:
-    - host: uptime.lab.samuelgesang.de
+    - host: uptime.samuelgesang.de
       http:
         paths:
           - path: /

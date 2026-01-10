@@ -10,14 +10,15 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-cookie-path: "/ /"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
 spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - argocd.lab.samuelgesang.de
+        - argocd.samuelgesang.de
       secretName: argocd-server-tls
   rules:
-    - host: argocd.lab.samuelgesang.de
+    - host: argocd.samuelgesang.de
       http:
         paths:
           - path: /

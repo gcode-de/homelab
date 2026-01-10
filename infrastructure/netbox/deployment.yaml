@@ -203,10 +203,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - netbox.lab.samuelgesang.de
+        - netbox.samuelgesang.de
       secretName: netbox-tls
   rules:
-    - host: netbox.lab.samuelgesang.de
+    - host: netbox.samuelgesang.de
       http:
         paths:
           - path: /
