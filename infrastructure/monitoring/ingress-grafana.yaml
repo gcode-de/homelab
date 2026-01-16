@@ -18,10 +18,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - grafana.lab.samuelgesang.de
+        - grafana.samuelgesang.de
       secretName: grafana-tls
   rules:
-    - host: grafana.lab.samuelgesang.de
+    - host: grafana.samuelgesang.de
       http:
         paths:
           - path: /

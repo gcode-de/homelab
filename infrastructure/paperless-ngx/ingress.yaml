@@ -17,10 +17,10 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - paperless.lab.samuelgesang.de
+        - paperless.samuelgesang.de
       secretName: paperless-tls
   rules:
-    - host: paperless.lab.samuelgesang.de
+    - host: paperless.samuelgesang.de
       http:
         paths:
           - path: /

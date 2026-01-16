@@ -12,7 +12,7 @@ spec:
   capacity:
     storage: 500Gi
   accessModes:
-    - ReadOnlyMany  # Read-only - Kavita doesn't need to write to library
+    - ReadOnlyMany # Read-only - Kavita doesn't need to write to library
   nfs:
     server: 192.168.68.126
     path: /volume1/Privat/WISSEN
@@ -52,5 +52,5 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2Gi
+      storage: 5Gi
   storageClassName: longhorn
