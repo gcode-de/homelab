@@ -30,22 +30,43 @@ Velero sichert den gesamten Kubernetes-Cluster auf die Synology NAS via MinIO (S
 
 ## Automatische Backup-Schedules
 
-| Schedule | Zeitplan | Aufbewahrung | Beschreibung |
-|----------|----------|--------------|--------------|
-| `velero-daily-backup` | Täglich 02:00 Uhr | 30 Tage | Inkrementelles Backup aller Namespaces |
-| `velero-weekly-full` | Sonntags 03:00 Uhr | 90 Tage | Vollständiges wöchentliches Backup |
+| Schedule                  | Zeitplan          | Aufbewahrung      | Beschreibung                                             |
+| ------------------------- | ----------------- | ----------------- | -------------------------------------------------------- |
+| `daily-cluster-backup`    | Täglich 02:00 Uhr | 7 Tage            | Vollständiges Cluster-Backup (alle Namespaces/Resources) |
+| `etcd-snapshot` (CronJob) | Täglich 03:00 Uhr | Manuell verwalten | etcd-Snapshots zu MinIO für Cluster-State                |
 
 ### Was wird gesichert?
 
-- ✅ Alle Namespaces (außer System-Namespaces)
-- ✅ Deployments, Services, ConfigMaps, Secrets
-- ✅ PersistentVolumeClaims (Datei-Ebene via Kopia)
-- ✅ Cluster-weite Ressourcen (CRDs, ClusterRoles, etc.)
+- ✅ Cluster-State: etcd-Snapshots (K3s-Konfiguration, Nodes, Secrets, ConfigMaps, RBAC)
+- ✅ Alle Namespaces/Resources: Deployments, Services, PVCs, PVs, Secrets, ConfigMaps
+- ✅ Persistent Volumes: Specs + Daten via CSI-Snapshots (Longhorn)
+- ✅ Longhorn-Volumes: Daten via Snapshots oder direkte Backups zu MinIO
 
 ### Was wird NICHT gesichert?
 
-- ❌ `kube-system`, `kube-public`, `kube-node-lease`
-- ❌ `velero` Namespace (verhindert Backup-Loops)
+- ❌ Externe NFS-Daten (z.B. Musik/Bücher auf Synology NAS) – sichere separat
+- ❌ Laufende Pods/Logs – werden beim Restore neu gestartet
+- ❌ Events (ausgeschlossen zur Performance)
+
+### Restore-Prozess
+
+1. **Cluster wiederherstellen**:
+
+   - Neuen K3s-Cluster aufbauen.
+   - etcd-Snapshot laden: `k3s server --cluster-reset --etcd-s3-bucket=velero --etcd-s3-endpoint=minio.velero.svc.cluster.local:9000 --etcd-s3-access-key=minioadmin --etcd-s3-secret-key=homelab-backup-2026 --etcd-s3-region=us-east-1`
+
+2. **Apps wiederherstellen**:
+   - `velero restore create --from-backup <backup-name>` – restored automatisch PVs, PVCs, Deployments, Secrets.
+   - Zeit: 10-30 Minuten für vollständigen Restore.
+
+### Sicherheit & Robustheit
+
+- Verschlüsselt (Restic in Velero für Daten).
+- Speicher gedeckelt durch Retention (7 Tage).
+- Automatisch via Schedules.
+- Teste regelmäßig in Staging-Umgebung!
+
+Bei Problemen: Logs in Velero (`kubectl logs -n velero`) oder MinIO prüfen.
 
 ## Befehle
 
@@ -174,33 +195,33 @@ Die Backup-Konfiguration befindet sich in `apps/production/velero.yaml`.
 ```yaml
 schedules:
   daily-backup:
-    schedule: "0 2 * * *"    # Cron: Minute Stunde Tag Monat Wochentag
+    schedule: "0 2 * * *" # Cron: Minute Stunde Tag Monat Wochentag
     template:
-      ttl: 720h              # Aufbewahrung in Stunden (720h = 30 Tage)
+      ttl: 720h # Aufbewahrung in Stunden (720h = 30 Tage)
       includedNamespaces:
-        - "*"                # Alle Namespaces
+        - "*" # Alle Namespaces
       excludedNamespaces:
-        - kube-system        # System-Namespaces ausschließen
+        - kube-system # System-Namespaces ausschließen
 ```
 
 ### Cron-Beispiele
 
-| Ausdruck | Bedeutung |
-|----------|-----------|
-| `0 2 * * *` | Täglich um 02:00 Uhr |
-| `0 3 * * 0` | Sonntags um 03:00 Uhr |
-| `0 */6 * * *` | Alle 6 Stunden |
-| `30 1 * * 1-5` | Mo-Fr um 01:30 Uhr |
+| Ausdruck       | Bedeutung             |
+| -------------- | --------------------- |
+| `0 2 * * *`    | Täglich um 02:00 Uhr  |
+| `0 3 * * 0`    | Sonntags um 03:00 Uhr |
+| `0 */6 * * *`  | Alle 6 Stunden        |
+| `30 1 * * 1-5` | Mo-Fr um 01:30 Uhr    |
 
 ### TTL (Aufbewahrungszeit)
 
-| Wert | Dauer |
-|------|-------|
-| `24h` | 1 Tag |
-| `168h` | 7 Tage |
-| `720h` | 30 Tage |
+| Wert    | Dauer   |
+| ------- | ------- |
+| `24h`   | 1 Tag   |
+| `168h`  | 7 Tage  |
+| `720h`  | 30 Tage |
 | `2160h` | 90 Tage |
-| `8760h` | 1 Jahr |
+| `8760h` | 1 Jahr  |
 
 ## Troubleshooting
 

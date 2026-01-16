@@ -7,8 +7,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: ""
-  volumeName: pvc-d3d213c6-1e53-4837-a1d3-08b8187bf626
+  storageClassName: longhorn
   resources:
     requests:
       storage: 20Gi

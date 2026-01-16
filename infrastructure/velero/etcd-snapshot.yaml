@@ -1,0 +1,47 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: etcd-snapshot
+  namespace: kube-system
+spec:
+  schedule: "0 3 * * *" # Daily at 3 AM
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: etcd-snapshot-sa
+          containers:
+            - name: etcd-snapshot
+              image: rancher/k3s:v1.33.6-k3s1
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  k3s etcd-snapshot save /backup/etcd-snapshot-$(date +%Y%m%d-%H%M%S).db --etcd-s3 --etcd-s3-bucket=velero --etcd-s3-endpoint=minio.velero.svc.cluster.local:9000 --etcd-s3-access-key=minioadmin --etcd-s3-secret-key=homelab-backup-2026 --etcd-s3-region=us-east-1
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+          volumes:
+            - name: backup
+              emptyDir: {}
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: etcd-snapshot-sa
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: etcd-snapshot-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: etcd-snapshot-sa
+    namespace: kube-system

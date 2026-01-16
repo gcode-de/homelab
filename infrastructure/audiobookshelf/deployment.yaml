@@ -57,11 +57,10 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  volumeName: pvc-2909b05a-175f-47e5-a13b-be58b04149f3
   resources:
     requests:
       storage: 5Gi
-  storageClassName: ""
+  storageClassName: longhorn
 ---
 apiVersion: apps/v1
 kind: Deployment
