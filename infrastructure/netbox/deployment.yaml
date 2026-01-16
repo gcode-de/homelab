@@ -70,6 +70,7 @@ spec:
       spec:
         accessModes: ["ReadWriteOnce"]
         storageClassName: longhorn
+        volumeName: pvc-f153c842-625e-4e1f-a935-619d9c740825
         volumeMode: Filesystem
         resources:
           requests:
