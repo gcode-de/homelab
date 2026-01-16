@@ -75,22 +75,22 @@ data:
           "type": "stat",
           "targets": [{ "expr": "max(pve_up{id=\"node/pve3\"})", "refId": "A" }]
         },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "fieldConfig": {
-            "defaults": {
-              "color": { "mode": "thresholds" },
-              "mappings": [{ "options": { "0": { "color": "red", "text": "Offline" }, "1": { "color": "green", "text": "Online" } }, "type": "value" }],
-              "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
-            }
-          },
-          "gridPos": { "h": 3, "w": 4, "x": 12, "y": 2 },
-          "id": 4,
-          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
-          "title": "PVE4",
-          "type": "stat",
-          "targets": [{ "expr": "max(pve_up{id=\"node/pve4\"})", "refId": "A" }]
-        },
+        # {
+        #   "datasource": { "type": "prometheus", "uid": "prometheus" },
+        #   "fieldConfig": {
+        #     "defaults": {
+        #       "color": { "mode": "thresholds" },
+        #       "mappings": [{ "options": { "0": { "color": "red", "text": "Offline" }, "1": { "color": "green", "text": "Online" } }, "type": "value" }],
+        #       "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+        #     }
+        #   },
+        #   "gridPos": { "h": 3, "w": 4, "x": 12, "y": 2 },
+        #   "id": 4,
+        #   "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
+        #   "title": "PVE4",
+        #   "type": "stat",
+        #   "targets": [{ "expr": "max(pve_up{id=\"node/pve4\"})", "refId": "A" }]
+        # },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "fieldConfig": {
