@@ -5,7 +5,7 @@ metadata:
   name: daily-cluster-backup
   namespace: velero
 spec:
-  schedule: "0 2 * * *" # Daily at 2 AM
+  schedule: "0 2 */2 * *" # Every other day at 2 AM
   template:
     includedNamespaces:
       - "*"
@@ -14,7 +14,7 @@ spec:
     excludedResources:
       - events
       - pods
-    ttl: 168h0m0s # 7 days retention
+    ttl: 72h0m0s # 3 days retention
     storageLocation: default
     volumeSnapshotLocations:
       - longhorn-backup
