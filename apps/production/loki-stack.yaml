@@ -19,6 +19,18 @@ spec:
         # Loki configuration
         loki:
           enabled: true
+          readinessProbe:
+            failureThreshold: 10
+            initialDelaySeconds: 45  # Give Loki more time to start
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          livenessProbe:
+            failureThreshold: 10
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 5
           persistence:
             enabled: true
             storageClassName: longhorn
@@ -80,6 +92,18 @@ spec:
         # Promtail - Log collector (DaemonSet)
         promtail:
           enabled: true
+          readinessProbe:
+            failureThreshold: 5
+            initialDelaySeconds: 30  # Wait 30s before first health check
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          livenessProbe:
+            failureThreshold: 10
+            initialDelaySeconds: 60  # Wait 60s before liveness check
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 5
           config:
             serverPort: 3101
             lokiAddress: http://loki:3100/loki/api/v1/push
