@@ -93,6 +93,15 @@ spec:
         app: portainer
     spec:
       serviceAccountName: portainer
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - k3s-agent-1
       containers:
         - name: portainer
           image: portainer/portainer-ce:latest
