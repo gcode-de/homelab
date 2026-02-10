@@ -1,0 +1,35 @@
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: argocd-server-pdb
+  namespace: argocd
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-server
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ingress-nginx-controller-pdb
+  namespace: ingress-nginx
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: controller
+      app.kubernetes.io/instance: ingress-nginx
+      app.kubernetes.io/name: ingress-nginx
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: portainer-pdb
+  namespace: portainer-ui
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: portainer
