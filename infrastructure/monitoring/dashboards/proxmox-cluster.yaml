@@ -22,7 +22,7 @@ data:
         {
           "gridPos": { "h": 2, "w": 24, "x": 0, "y": 0 },
           "id": 100,
-          "options": { "content": "# Proxmox VE Cluster - Homelab\n6 Nodes: PVE1, PVE2, PVE3, PVE4, PVE6, PVE7", "mode": "markdown" },
+          "options": { "content": "# Proxmox VE Cluster - Homelab", "mode": "markdown" },
           "title": "",
           "transparent": true,
           "type": "text"
@@ -84,12 +84,12 @@ data:
               "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
             }
           },
-          "gridPos": { "h": 3, "w": 4, "x": 16, "y": 2 },
-          "id": 5,
+          "gridPos": { "h": 3, "w": 4, "x": 12, "y": 2 },
+          "id": 4,
           "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "horizontal", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false } },
-          "title": "PVE6",
+          "title": "PVE4",
           "type": "stat",
-          "targets": [{ "expr": "max(pve_up{id=\"node/pve6\"})", "refId": "A" }]
+          "targets": [{ "expr": "max(pve_up{id=\"node/pve4\"})", "refId": "A" }]
         },
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
