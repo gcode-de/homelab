@@ -98,12 +98,6 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 1  # Helm chart default
-          livenessProbe:
-            failureThreshold: 10
-            initialDelaySeconds: 60
-            periodSeconds: 15
-            successThreshold: 1
-            timeoutSeconds: 5
           config:
             serverPort: 3101
             lokiAddress: http://loki:3100/loki/api/v1/push
