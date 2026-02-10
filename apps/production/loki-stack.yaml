@@ -94,13 +94,13 @@ spec:
           enabled: true
           readinessProbe:
             failureThreshold: 5
-            initialDelaySeconds: 30  # Wait 30s before first health check
+            initialDelaySeconds: 10  # Helm chart default
             periodSeconds: 10
             successThreshold: 1
-            timeoutSeconds: 5
+            timeoutSeconds: 1  # Helm chart default
           livenessProbe:
             failureThreshold: 10
-            initialDelaySeconds: 60  # Wait 60s before liveness check
+            initialDelaySeconds: 60
             periodSeconds: 15
             successThreshold: 1
             timeoutSeconds: 5

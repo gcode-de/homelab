@@ -9,41 +9,41 @@ metadata:
     prometheus: kube-prometheus-stack
 spec:
   groups:
-  - name: cluster-health.rules
-    interval: 30s
-    rules:
-    - alert: NodeDiskUsageHigh
-      expr: (1 - (node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|overlay|squashfs"} / node_filesystem_size_bytes{mountpoint="/",fstype!~"tmpfs|overlay|squashfs"})) > 0.85
-      for: 10m
-      labels:
-        severity: warning
-      annotations:
-        summary: "Node {{ $labels.instance }} disk usage high"
-        description: "Root filesystem usage is above 85% for 10 minutes"
+    - name: cluster-health.rules
+      interval: 30s
+      rules:
+        - alert: NodeDiskUsageHigh
+          expr: (1 - (node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|overlay|squashfs"} / node_filesystem_size_bytes{mountpoint="/",fstype!~"tmpfs|overlay|squashfs"})) > 0.85
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Node {{ $labels.instance }} disk usage high"
+            description: "Root filesystem usage is above 85% for 10 minutes"
 
-    - alert: NodeInodeUsageHigh
-      expr: (1 - (node_filesystem_files_free{mountpoint="/",fstype!~"tmpfs|overlay|squashfs"} / node_filesystem_files{mountpoint="/",fstype!~"tmpfs|overlay|squashfs"})) > 0.90
-      for: 10m
-      labels:
-        severity: warning
-      annotations:
-        summary: "Node {{ $labels.instance }} inode usage high"
-        description: "Root filesystem inode usage is above 90% for 10 minutes"
+        - alert: NodeInodeUsageHigh
+          expr: (1 - (node_filesystem_files_free{mountpoint="/",fstype!~"tmpfs|overlay|squashfs"} / node_filesystem_files{mountpoint="/",fstype!~"tmpfs|overlay|squashfs"})) > 0.90
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Node {{ $labels.instance }} inode usage high"
+            description: "Root filesystem inode usage is above 90% for 10 minutes"
 
-    - alert: NodeClockSkew
-      expr: abs(node_time_seconds - time()) > 2
-      for: 5m
-      labels:
-        severity: warning
-      annotations:
-        summary: "Node {{ $labels.instance }} clock skew"
-        description: "Node clock is out of sync by more than 2 seconds"
+        - alert: NodeClockSkew
+          expr: abs(node_time_seconds - time()) > 2
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Node {{ $labels.instance }} clock skew"
+            description: "Node clock is out of sync by more than 2 seconds"
 
-    - alert: PersistentVolumeFillingUp
-      expr: (kubelet_volume_stats_available_bytes / kubelet_volume_stats_capacity_bytes) < 0.15
-      for: 10m
-      labels:
-        severity: warning
-      annotations:
-        summary: "PersistentVolume nearly full"
-        description: "PV has less than 15% free space for 10 minutes"
+        - alert: PersistentVolumeFillingUp
+          expr: (kubelet_volume_stats_available_bytes / kubelet_volume_stats_capacity_bytes) < 0.15
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PersistentVolume nearly full"
+            description: "PV has less than 15% free space for 10 minutes"
