@@ -1,0 +1,31 @@
+---
+# PrometheusRule für NotReady Nodes
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: node-health-alerts
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus-stack
+spec:
+  groups:
+  - name: node-health.rules
+    interval: 30s
+    rules:
+    - alert: NodeNotReady
+      expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Node {{ $labels.node }} is NotReady"
+        description: "Node {{ $labels.node }} has been NotReady for more than 5 minutes"
+    
+    - alert: TerminatingPodStuck
+      expr: count(kube_pod_deletion_timestamp > 0) > 0
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "{{ $value }} pods stuck in Terminating state"
+        description: "One or more pods have been terminating for more than 10 minutes"
