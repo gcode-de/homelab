@@ -9,7 +9,7 @@ Velero sichert den gesamten Kubernetes-Cluster auf die Synology NAS via MinIO (S
 │                        k3s Cluster                              │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────────────┐  │
 │  │   Velero    │───▶│    MinIO    │───▶│  NFS Volume         │  │
-│  │   Server    │    │  (S3-API)   │    │  /volume2/Proxmox/  │  │
+│  │   Server    │    │  (S3-API)   │    │  /volume1/Proxmox/  │  │
 │  └─────────────┘    └─────────────┘    │  k8s-backups        │  │
 │        │                               └──────────┬──────────┘  │
 │  ┌─────┴─────┐                                    │             │
@@ -51,7 +51,6 @@ Velero sichert den gesamten Kubernetes-Cluster auf die Synology NAS via MinIO (S
 ### Restore-Prozess
 
 1. **Cluster wiederherstellen**:
-
    - Neuen K3s-Cluster aufbauen.
    - etcd-Snapshot laden: `k3s server --cluster-reset --etcd-s3-bucket=velero --etcd-s3-endpoint=minio.velero.svc.cluster.local:9000 --etcd-s3-access-key=minioadmin --etcd-s3-secret-key=homelab-backup-2026 --etcd-s3-region=us-east-1`
 
@@ -285,7 +284,7 @@ kubectl rollout restart daemonset/node-agent -n velero
 
 Die Backups werden auf der Synology NAS gespeichert:
 
-- **NFS-Pfad:** `/volume2/Proxmox/k8s-backups`
+- **NFS-Pfad:** `/1/Proxmox/k8s-backups`
 - **NAS-IP:** `192.168.68.126`
 - **Bucket:** `velero`
 

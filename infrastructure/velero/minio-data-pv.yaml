@@ -11,7 +11,7 @@ spec:
   storageClassName: nfs-velero
   nfs:
     server: 192.168.68.126
-    path: /volume2/Proxmox/k8s-backups
+    path: /volume1/Proxmox/k8s-backups
   mountOptions:
     - nfsvers=4
     - nolock
