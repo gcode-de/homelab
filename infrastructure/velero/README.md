@@ -289,3 +289,11 @@ Die Backups werden auf der Synology NAS gespeichert:
 - **Bucket:** `velero`
 
 Die Backup-Daten können auch direkt auf der NAS eingesehen werden.
+
+MinIO ist auf `RELEASE.2025-09-07T16-13-09Z`, das letzte offiziell
+vorgefertigte Community-Image, festgesetzt. Da das Community-Projekt nicht
+mehr gepflegt wird und diese Version von
+[GHSA-xh8f-g2qw-gcm7](https://github.com/minio/minio/security/advisories/GHSA-xh8f-g2qw-gcm7)
+betroffen ist, bleibt der Dienst ausschließlich intern erreichbar. Die
+mittelfristige Ablösung durch einen gepflegten S3-kompatiblen Dienst ist
+erforderlich.
