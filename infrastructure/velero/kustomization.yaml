@@ -5,7 +5,6 @@ resources:
   - namespace.yaml
   - nfs-storage.yaml
   - minio.yaml
-  - velero-helm.yaml
   - backup-schedule.yaml
   - etcd-snapshot.yaml
   - velero-cleanup-cronjob.yaml

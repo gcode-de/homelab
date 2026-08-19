@@ -52,7 +52,7 @@ Velero sichert den gesamten Kubernetes-Cluster auf die Synology NAS via MinIO (S
 
 1. **Cluster wiederherstellen**:
    - Neuen K3s-Cluster aufbauen.
-   - etcd-Snapshot laden: `k3s server --cluster-reset --etcd-s3-bucket=velero --etcd-s3-endpoint=minio.velero.svc.cluster.local:9000 --etcd-s3-access-key=minioadmin --etcd-s3-secret-key=homelab-backup-2026 --etcd-s3-region=us-east-1`
+   - etcd-Snapshot laden: `k3s server --cluster-reset --etcd-s3-bucket=velero --etcd-s3-endpoint=minio.velero.svc.cluster.local:9000 --etcd-s3-access-key=<S3_ACCESS_KEY> --etcd-s3-secret-key=<S3_SECRET_KEY> --etcd-s3-region=us-east-1`
 
 2. **Apps wiederherstellen**:
    - `velero restore create --from-backup <backup-name>` – restored automatisch PVs, PVCs, Deployments, Secrets.

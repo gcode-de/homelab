@@ -14,11 +14,22 @@ spec:
           containers:
             - name: etcd-snapshot
               image: rancher/k3s:v1.33.6-k3s1
+              env:
+                - name: ETCD_S3_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: etcd-s3-credentials
+                      key: access-key
+                - name: ETCD_S3_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: etcd-s3-credentials
+                      key: secret-key
               command:
                 - /bin/sh
                 - -c
                 - |
-                  k3s etcd-snapshot save /backup/etcd-snapshot-$(date +%Y%m%d-%H%M%S).db --etcd-s3 --etcd-s3-bucket=velero --etcd-s3-endpoint=minio.velero.svc.cluster.local:9000 --etcd-s3-access-key=minioadmin --etcd-s3-secret-key=homelab-backup-2026 --etcd-s3-region=us-east-1
+                  k3s etcd-snapshot save /backup/etcd-snapshot-$(date +%Y%m%d-%H%M%S).db --etcd-s3 --etcd-s3-bucket=velero --etcd-s3-endpoint=minio.velero.svc.cluster.local:9000 --etcd-s3-access-key="$ETCD_S3_ACCESS_KEY" --etcd-s3-secret-key="$ETCD_S3_SECRET_KEY" --etcd-s3-region=us-east-1
               volumeMounts:
                 - name: backup
                   mountPath: /backup

@@ -20,16 +20,6 @@ spec:
     - nfsvers=4
     - nolock
 ---
-apiVersion: v1
-kind: Secret
-metadata:
-  name: minio-credentials
-  namespace: velero
-type: Opaque
-stringData:
-  MINIO_ROOT_USER: "minioadmin"
-  MINIO_ROOT_PASSWORD: "homelab-backup-2026"
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -125,12 +115,14 @@ spec:
       containers:
         - name: mc
           image: minio/mc:latest
+          envFrom:
+            - secretRef:
+                name: minio-credentials
           command:
             - /bin/sh
             - -c
             - |
               sleep 15
-              mc alias set myminio http://minio.velero.svc.cluster.local:9000 minioadmin homelab-backup-2026
+              mc alias set myminio http://minio.velero.svc.cluster.local:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"
               mc mb --ignore-existing myminio/velero
-              mc anonymous set download myminio/velero
               echo "Bucket 'velero' created successfully"

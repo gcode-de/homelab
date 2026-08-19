@@ -79,14 +79,16 @@ Use the `value` field as `token_value` in the secret.
 
 ## Grafana Admin Password
 
-The default Grafana admin password is set in `kube-prometheus-stack.yaml`.
+Grafana liest die Admin-Zugangsdaten aus dem Secret `grafana-admin-credentials`. Das Secret wird nicht im Klartext committed und muss vor der Argo-CD-Synchronisation im Namespace `monitoring` vorhanden sein.
 
-**Important:** Change this password immediately after first login!
+```bash
+kubectl create secret generic grafana-admin-credentials \
+  --namespace monitoring \
+  --from-literal=admin-user='<ADMIN_USER>' \
+  --from-literal=admin-password='<STRONG_RANDOM_PASSWORD>'
+```
 
-1. Login to Grafana: https://grafana-homelab-local or https://grafana.lab.samuelgesang.de
-2. Username: `admin`
-3. Password: `admin123` (default)
-4. Go to: Administration → Users → admin → Change Password
+Für GitOps sollte daraus lokal ein SealedSecret erzeugt werden. Die unversiegelte Quelldatei bleibt außerhalb des Repositories.
 
 ## Alertmanager Secrets (Optional)
 
