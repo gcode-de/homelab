@@ -141,7 +141,8 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true      - SkipDryRunOnMissingResource=true
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true
       - RespectIgnoreDifferences=true
       - ServerSideApply=true
     retry:

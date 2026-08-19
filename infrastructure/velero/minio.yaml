@@ -104,6 +104,7 @@ metadata:
   name: minio
   namespace: velero
 spec:
+  clusterIP: 10.43.75.163
   selector:
     app: minio
   ports:
