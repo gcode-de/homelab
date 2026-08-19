@@ -5,7 +5,6 @@ resources:
   - namespace.yaml
   - proxmox-exporter.yaml
   - proxmox-servicemonitor.yaml
-  - ingress-grafana.yaml
   - ingress-grafana-local.yaml
   - prometheus-rules-node-health.yaml
   - prometheus-rules-cluster-health.yaml

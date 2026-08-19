@@ -1,23 +1,25 @@
-# Wildcard TLS certificate for \*.homelab.local
+# Lokales TLS-Zertifikat für `*.homelab.local`
 
-# Generated with mkcert - trusted by local browsers
+Das Wildcard-Zertifikat wird mit mkcert erzeugt und von lokalen Browsern über
+die installierte mkcert-CA vertraut. Es wird nicht von cert-manager erneuert.
 
-#
+```bash
+mkcert "*.homelab.local" "homelab.local"
+```
 
-# To regenerate:
+Kubernetes-TLS-Secrets sind namespacegebunden. Das Zertifikat muss deshalb in
+jedem Namespace vorhanden sein, dessen Ingress `homelab-local-tls` referenziert:
 
-# mkcert "\*.homelab.local" "homelab.local"
+```bash
+for namespace in argocd monitoring portainer-ui; do
+  kubectl create secret tls homelab-local-tls \
+    --namespace "$namespace" \
+    --cert=_wildcard.homelab.local+1.pem \
+    --key=_wildcard.homelab.local+1-key.pem \
+    --dry-run=client -o yaml | kubectl apply -f -
+done
+```
 
-# kubectl create secret tls homelab-local-tls \
-
-# --cert=\_wildcard.homelab.local+1.pem \
-
-# --key=\_wildcard.homelab.local+1-key.pem \
-
-# -n ingress-nginx
-
-#
-
-# The mkcert CA is installed in the system trust store.
-
-# Expires: April 2028
+NetBox verwendet derzeit internes HTTP. Falls dort TLS aktiviert wird, muss das
+Secret zusätzlich im Namespace `netbox` angelegt werden. Zertifikatsdateien und
+private Schlüssel dürfen nicht in dieses Repository committed werden.

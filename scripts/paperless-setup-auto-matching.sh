@@ -1,19 +1,42 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
 # Paperless API Configuration
-PAPERLESS_URL="http://paperless-ngx.paperless-ngx.svc.cluster.local"
-PAPERLESS_USER="admin"
-PAPERLESS_PASS="admin123"
+PAPERLESS_URL="${PAPERLESS_URL:-http://paperless-ngx.paperless-ngx.svc.cluster.local}"
+PAPERLESS_USER="${PAPERLESS_USER:-admin}"
+
+command -v jq >/dev/null 2>&1 || {
+  echo "Error: jq is required" >&2
+  exit 1
+}
+
+if [[ -z "${PAPERLESS_PASS:-}" ]]; then
+  if [[ -t 0 ]]; then
+    read -r -s -p "Paperless password: " PAPERLESS_PASS
+    echo
+  else
+    echo "Error: set PAPERLESS_PASS for non-interactive use" >&2
+    exit 1
+  fi
+fi
+
+trap 'unset TOKEN PAPERLESS_PASS' EXIT
 
 echo "=== Paperless Auto-Matching Setup ==="
 echo "Getting auth token..."
 
 # Get auth token
-TOKEN=$(kubectl exec -n paperless-ngx deployment/paperless-ngx -c paperless -- \
-  curl -s -X POST "$PAPERLESS_URL/api/token/" \
-  -H "Content-Type: application/json" \
-  -d "{\"username\":\"$PAPERLESS_USER\",\"password\":\"$PAPERLESS_PASS\"}" | grep -o '"token":"[^"]*' | cut -d'"' -f4)
+TOKEN=$(
+  jq -nc \
+    --arg username "$PAPERLESS_USER" \
+    --arg password "$PAPERLESS_PASS" \
+    '{username: $username, password: $password}' |
+    kubectl exec -i -n paperless-ngx deployment/paperless-ngx -c paperless -- \
+      curl -fsS -X POST "$PAPERLESS_URL/api/token/" \
+      -H "Content-Type: application/json" \
+      --data-binary @- |
+    jq -er '.token'
+)
 
 if [ -z "$TOKEN" ]; then
   echo "Error: Could not get auth token"
@@ -36,7 +59,7 @@ TAG_RESPONSE=$(kubectl exec -n paperless-ngx deployment/paperless-ngx -c paperle
     "is_insensitive": true
   }')
 
-TAG_ID=$(echo "$TAG_RESPONSE" | grep -o '"id":[0-9]*' | head -1 | cut -d':' -f2)
+TAG_ID=$(jq -er '.id' <<<"$TAG_RESPONSE")
 echo "Tag 'Auto' created with ID: $TAG_ID"
 
 # Create Document Type "Auto/Fahrzeug"
@@ -52,7 +75,7 @@ DOCTYPE_RESPONSE=$(kubectl exec -n paperless-ngx deployment/paperless-ngx -c pap
     "is_insensitive": true
   }')
 
-DOCTYPE_ID=$(echo "$DOCTYPE_RESPONSE" | grep -o '"id":[0-9]*' | head -1 | cut -d':' -f2)
+DOCTYPE_ID=$(jq -er '.id' <<<"$DOCTYPE_RESPONSE")
 echo "Document Type 'Auto/Fahrzeug' created with ID: $DOCTYPE_ID"
 
 # Create Correspondent "Auto" (optional)
@@ -68,7 +91,7 @@ CORRESP_RESPONSE=$(kubectl exec -n paperless-ngx deployment/paperless-ngx -c pap
     "is_insensitive": true
   }')
 
-CORRESP_ID=$(echo "$CORRESP_RESPONSE" | grep -o '"id":[0-9]*' | head -1 | cut -d':' -f2)
+CORRESP_ID=$(jq -er '.id' <<<"$CORRESP_RESPONSE")
 echo "Correspondent 'Behörde/Auto' created with ID: $CORRESP_ID"
 
 echo ""
@@ -83,6 +106,4 @@ echo "  - Document Type 'Auto/Fahrzeug' zugewiesen bekommen"
 echo "  - Correspondent 'Behörde/Auto' (wenn Behörde im Text)"
 echo ""
 echo "Das existierende Dokument kann jetzt neu verarbeitet werden:"
-echo "kubectl exec -n paperless-ngx deployment/paperless-ngx -c paperless -- \\
-  curl -X POST \"$PAPERLESS_URL/api/documents/1/remake_classifiers/\" \\
-  -H \"Authorization: Token $TOKEN\""
+echo "Dazu die Paperless-Oberfläche oder einen neuen, separat authentifizierten API-Aufruf verwenden."

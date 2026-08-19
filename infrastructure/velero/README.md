@@ -30,17 +30,18 @@ Velero sichert den gesamten Kubernetes-Cluster auf die Synology NAS via MinIO (S
 
 ## Automatische Backup-Schedules
 
-| Schedule                  | Zeitplan          | Aufbewahrung      | Beschreibung                                             |
-| ------------------------- | ----------------- | ----------------- | -------------------------------------------------------- |
-| `daily-cluster-backup`    | Täglich 02:00 Uhr | 7 Tage            | Vollständiges Cluster-Backup (alle Namespaces/Resources) |
-| `etcd-snapshot` (CronJob) | Täglich 03:00 Uhr | Manuell verwalten | etcd-Snapshots zu MinIO für Cluster-State                |
+| Schedule                  | Zeitplan                    | Aufbewahrung | Beschreibung                                      |
+| ------------------------- | --------------------------- | ------------ | ------------------------------------------------- |
+| `daily-backup`            | Täglich 02:00 Uhr           | 30 Tage      | Ressourcen und Volume-Daten der Anwendungen       |
+| `weekly-full`             | Sonntags 03:00 Uhr          | 90 Tage      | Wöchentliches Vollbackup der Anwendungen          |
+| `etcd-snapshot` (CronJob) | Jeden zweiten Tag, 03:00 Uhr | 14 Snapshots | Komprimierte Snapshots im MinIO-Bucket `k3s-etcd` |
 
 ### Was wird gesichert?
 
 - ✅ Cluster-State: etcd-Snapshots (K3s-Konfiguration, Nodes, Secrets, ConfigMaps, RBAC)
 - ✅ Alle Namespaces/Resources: Deployments, Services, PVCs, PVs, Secrets, ConfigMaps
-- ✅ Persistent Volumes: Specs + Daten via CSI-Snapshots (Longhorn)
-- ✅ Longhorn-Volumes: Daten via Snapshots oder direkte Backups zu MinIO
+- ✅ Persistent Volumes: Specs + Daten als dateibasiertes Kopia-Backup
+- ✅ Longhorn-Volumes: Daten über den Velero-Node-Agent zu MinIO
 
 ### Was wird NICHT gesichert?
 
@@ -52,7 +53,8 @@ Velero sichert den gesamten Kubernetes-Cluster auf die Synology NAS via MinIO (S
 
 1. **Cluster wiederherstellen**:
    - Neuen K3s-Cluster aufbauen.
-   - etcd-Snapshot laden: `k3s server --cluster-reset --etcd-s3-bucket=velero --etcd-s3-endpoint=minio.velero.svc.cluster.local:9000 --etcd-s3-access-key=minioadmin --etcd-s3-secret-key=homelab-backup-2026 --etcd-s3-region=us-east-1`
+   - Server-Token aus dem gleichen Backup-Zeitpunkt bereitstellen.
+   - etcd-Snapshot mit `--cluster-reset`, `--etcd-s3`, `--etcd-s3-insecure` und Bucket `k3s-etcd` laden.
 
 2. **Apps wiederherstellen**:
    - `velero restore create --from-backup <backup-name>` – restored automatisch PVs, PVCs, Deployments, Secrets.
@@ -60,8 +62,9 @@ Velero sichert den gesamten Kubernetes-Cluster auf die Synology NAS via MinIO (S
 
 ### Sicherheit & Robustheit
 
-- Verschlüsselt (Restic in Velero für Daten).
-- Speicher gedeckelt durch Retention (7 Tage).
+- Zugangsdaten liegen ausschließlich in Kubernetes-Secrets.
+- MinIO ist nur intern erreichbar; der Transport innerhalb des Clusters nutzt derzeit HTTP.
+- Speicher ist durch die konfigurierten Retention-Zeiten begrenzt.
 - Automatisch via Schedules.
 - Teste regelmäßig in Staging-Umgebung!
 
@@ -284,8 +287,17 @@ kubectl rollout restart daemonset/node-agent -n velero
 
 Die Backups werden auf der Synology NAS gespeichert:
 
-- **NFS-Pfad:** `/1/Proxmox/k8s-backups`
+- **NFS-Pfad:** `/volume1/Proxmox/k8s-backups`
 - **NAS-IP:** `192.168.68.126`
-- **Bucket:** `velero`
+- **Velero-Bucket:** `velero`
+- **etcd-Bucket:** `k3s-etcd`
 
 Die Backup-Daten können auch direkt auf der NAS eingesehen werden.
+
+MinIO ist auf `RELEASE.2025-09-07T16-13-09Z`, das letzte offiziell
+vorgefertigte Community-Image, festgesetzt. Da das Community-Projekt nicht
+mehr gepflegt wird und diese Version von
+[GHSA-xh8f-g2qw-gcm7](https://github.com/minio/minio/security/advisories/GHSA-xh8f-g2qw-gcm7)
+betroffen ist, bleibt der Dienst ausschließlich intern erreichbar. Die
+mittelfristige Ablösung durch einen gepflegten S3-kompatiblen Dienst ist
+erforderlich.
