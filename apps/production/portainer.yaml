@@ -104,7 +104,7 @@ spec:
                       - k3s-agent-1
       containers:
         - name: portainer
-          image: portainer/portainer-ce:latest
+          image: portainer/portainer-ce@sha256:4786931dc7c588ff1c242696fe1eb3f7f9c5dafb136b6c713aff7745dd5bd407
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
