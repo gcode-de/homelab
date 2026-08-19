@@ -284,7 +284,7 @@ kubectl rollout restart daemonset/node-agent -n velero
 
 Die Backups werden auf der Synology NAS gespeichert:
 
-- **NFS-Pfad:** `/1/Proxmox/k8s-backups`
+- **NFS-Pfad:** `/volume1/Proxmox/k8s-backups`
 - **NAS-IP:** `192.168.68.126`
 - **Bucket:** `velero`
 

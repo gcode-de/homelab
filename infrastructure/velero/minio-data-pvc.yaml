@@ -5,8 +5,9 @@ metadata:
   namespace: velero
 spec:
   accessModes:
-    - ReadWriteMany
-  storageClassName: nfs-velero
+    - ReadWriteOnce
+  storageClassName: ""
+  volumeName: minio-velero-nfs
   resources:
     requests:
-      storage: 100Gi
+      storage: 500Gi
