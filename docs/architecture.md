@@ -67,7 +67,10 @@ Das Diagramm zeigt die logischen Rollen. Die konkrete Anzahl und Zuordnung der N
 2. Das lokale DNS liefert eine IP aus dem MetalLB-Pool.
 3. MetalLB kündigt die IP im Layer-2-Netz an und leitet zum `LoadBalancer`-Service von ingress-nginx.
 4. ingress-nginx terminiert TLS und routet anhand des Hostnamens zum internen `ClusterIP`-Service.
-5. cert-manager verwaltet die vom Ingress referenzierten TLS-Secrets.
+5. Der Ingress referenziert ein TLS-Secret im Namespace der Anwendung. Öffentlich
+   vertrauenswürdige Zertifikate kann cert-manager verwalten; das lokale
+   `*.homelab.local`-Zertifikat wird mit mkcert erzeugt und gemäß
+   `infrastructure/certs/README.md` in die benötigten Namespaces kopiert.
 
 MetalLB stellt Erreichbarkeit im lokalen Netz her, öffnet aber selbst keine Firewall- oder Router-Ports. Die Netzwerkgrenze ist in [Sicherheitsprinzipien](security.md) beschrieben.
 
