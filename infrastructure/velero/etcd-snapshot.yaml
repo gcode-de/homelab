@@ -42,8 +42,7 @@ spec:
                     --snapshot-compress \
                     --etcd-s3 \
                     --etcd-s3-insecure \
-                    --etcd-s3-bucket=velero \
-                    --etcd-s3-folder=etcd \
+                    --etcd-s3-bucket=k3s-etcd \
                     --etcd-s3-endpoint=10.43.75.163:9000 \
                     --etcd-s3-access-key="$ETCD_S3_ACCESS_KEY" \
                     --etcd-s3-secret-key="$ETCD_S3_SECRET_KEY" \

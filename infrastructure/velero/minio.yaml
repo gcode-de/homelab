@@ -141,4 +141,5 @@ spec:
               sleep 15
               mc alias set myminio http://minio.velero.svc.cluster.local:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"
               mc mb --ignore-existing myminio/velero
-              echo "Bucket 'velero' created successfully"
+              mc mb --ignore-existing myminio/k3s-etcd
+              echo "Buckets 'velero' and 'k3s-etcd' created successfully"

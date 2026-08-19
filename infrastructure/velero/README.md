@@ -34,7 +34,7 @@ Velero sichert den gesamten Kubernetes-Cluster auf die Synology NAS via MinIO (S
 | ------------------------- | --------------------------- | ------------ | ------------------------------------------------- |
 | `daily-backup`            | Täglich 02:00 Uhr           | 30 Tage      | Ressourcen und Volume-Daten der Anwendungen       |
 | `weekly-full`             | Sonntags 03:00 Uhr          | 90 Tage      | Wöchentliches Vollbackup der Anwendungen          |
-| `etcd-snapshot` (CronJob) | Jeden zweiten Tag, 03:00 Uhr | 14 Snapshots | Komprimierte etcd-Snapshots im MinIO-Ordner `etcd` |
+| `etcd-snapshot` (CronJob) | Jeden zweiten Tag, 03:00 Uhr | 14 Snapshots | Komprimierte Snapshots im MinIO-Bucket `k3s-etcd` |
 
 ### Was wird gesichert?
 
@@ -54,7 +54,7 @@ Velero sichert den gesamten Kubernetes-Cluster auf die Synology NAS via MinIO (S
 1. **Cluster wiederherstellen**:
    - Neuen K3s-Cluster aufbauen.
    - Server-Token aus dem gleichen Backup-Zeitpunkt bereitstellen.
-   - etcd-Snapshot mit `--cluster-reset`, `--etcd-s3`, `--etcd-s3-insecure`, Bucket `velero` und Ordner `etcd` laden.
+   - etcd-Snapshot mit `--cluster-reset`, `--etcd-s3`, `--etcd-s3-insecure` und Bucket `k3s-etcd` laden.
 
 2. **Apps wiederherstellen**:
    - `velero restore create --from-backup <backup-name>` – restored automatisch PVs, PVCs, Deployments, Secrets.
@@ -289,7 +289,8 @@ Die Backups werden auf der Synology NAS gespeichert:
 
 - **NFS-Pfad:** `/volume1/Proxmox/k8s-backups`
 - **NAS-IP:** `192.168.68.126`
-- **Bucket:** `velero`
+- **Velero-Bucket:** `velero`
+- **etcd-Bucket:** `k3s-etcd`
 
 Die Backup-Daten können auch direkt auf der NAS eingesehen werden.
 
